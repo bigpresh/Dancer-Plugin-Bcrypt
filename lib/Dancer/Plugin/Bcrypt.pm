@@ -20,6 +20,12 @@ register bcrypt => sub {
     my $config = sanity_check();
 
     # On to the actual work...
+
+    # If passwords should be treated case-insensitively, lowercase the provided
+    # plaintext password before continuing
+    if ($config->{case_insensitive}) {
+        $plaintext = lc $plaintext;
+    }
     
     # If you pass a plaintext password and an bcrypted one (from a DB f.ex)
     # we hash the plaintext password using the same method, salt and
@@ -185,10 +191,17 @@ hash you have stored in the database.
 
 You can set the work factor and the random-ness of the salt in your config.yml
 
+You can also denote that passwords should be compared case-insenitively.
+However, if you want to use this, you need to use it from the beginning - it
+works by lowercasing the supplied password before generating the hash.  If a
+hash has been generated without the case_insensitive option, and you later turn
+it on, that hash B<cannot> match - the user will have to reset their password.
+
     plugins:
       bcrypt:
         work_factor: 8
         random_factor: strong
+        case_insensitive: 0
 
 
 =head1 SEE ALSO
